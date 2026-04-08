@@ -19,8 +19,8 @@ for simbolo in titoli:
     dati = ticker.history(period="1mo")
     
     # Salva in CSV
-    percorso = f"dati/{simbolo}_{oggi}.csv"
-    dati.to_csv(percorso)
+    percorso = f"dati/{simbolo}.csv"
+    dati.to_csv(percorso, mode='a', header=not os.path.exists(percorso))
     print(f"  Salvato in {percorso}")
 
 print("Fatto!")
