@@ -5,6 +5,9 @@ on:
     - cron: '0 10 * * *'  # Ogni giorno alle 8:00 UTC
   workflow_dispatch:       # Permette anche avvio manuale
 
+permissions:
+  contents: write        # ← aggiungi questo blocco
+
 jobs:
   scarica:
     runs-on: ubuntu-latest
