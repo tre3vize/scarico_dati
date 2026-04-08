@@ -3,24 +3,30 @@ import pandas as pd
 import os
 from datetime import date
 
-# Crea la cartella se non esiste
 os.makedirs("dati", exist_ok=True)
 
-# Lista dei titoli da monitorare
 titoli = ["AAPL", "MSFT", "GOOGL", "NVDA", "ENI.MI"]
-
-oggi = date.today().strftime("%Y-%m-%d")
 
 for simbolo in titoli:
     print(f"Scarico {simbolo}...")
     ticker = yf.Ticker(simbolo)
-    
-    # Ultimi 30 giorni
-    dati = ticker.history(period="1mo")
-    
-    # Salva in CSV
+    nuovi_dati = ticker.history(period="1mo")
+
     percorso = f"dati/{simbolo}.csv"
-    dati.to_csv(percorso, mode='a', header=not os.path.exists(percorso))
+
+    if os.path.exists(percorso):
+        # Carica i dati esistenti e unisce con i nuovi
+        dati_esistenti = pd.read_csv(percorso, index_col=0, parse_dates=True)
+        dati_uniti = pd.concat([dati_esistenti, nuovi_dati])
+        # Elimina i duplicati tenendo l'ultimo valore per ogni data
+        dati_uniti = dati_uniti[~dati_uniti.index.duplicated(keep='last')]
+        # Ordina per data
+        dati_uniti = dati_uniti.sort_index()
+        dati_uniti.to_csv(percorso)
+    else:
+        # Prima esecuzione, crea il file da zero
+        nuovi_dati.to_csv(percorso)
+
     print(f"  Salvato in {percorso}")
 
 print("Fatto!")
