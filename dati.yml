@@ -1,0 +1,33 @@
+name: Scarica dati finanziari
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Ogni giorno alle 8:00 UTC
+  workflow_dispatch:       # Permette anche avvio manuale
+
+jobs:
+  scarica:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Installa Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installa dipendenze
+        run: pip install -r requirements.txt
+
+      - name: Esegui lo script
+        run: python scarica_dati.py
+
+      - name: Salva i dati nel repository
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add dati/
+          git commit -m "Aggiornamento dati $(date +'%Y-%m-%d')" || echo "Nessuna modifica"
+          git push
