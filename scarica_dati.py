@@ -1,26 +1,32 @@
 import yfinance as yf
 import pandas as pd
 import os
+import requests
 
 os.makedirs("dati", exist_ok=True)
 
 titoli = ["AAPL", "MSFT", "GOOGL", "NVDA", "ENI.MI"]
 
+# Crea una sessione che simula un browser
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language': 'it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7',
+})
+
 for simbolo in titoli:
     print(f"Scarico {simbolo}...")
-    
+
     try:
-        ticker = yf.Ticker(simbolo)
+        ticker = yf.Ticker(simbolo, session=session)
         nuovi_dati = ticker.history(period="1mo")
         print(f"  Righe ricevute: {len(nuovi_dati)}")
-        print(nuovi_dati.head())
-        
-        # Controlla che i dati non siano vuoti
+
         if nuovi_dati.empty:
             print(f"  Nessun dato ricevuto per {simbolo}, salto.")
             continue
 
-        # Rimuove fuso orario solo se presente
         if hasattr(nuovi_dati.index, 'tz') and nuovi_dati.index.tz is not None:
             nuovi_dati.index = nuovi_dati.index.tz_localize(None)
         nuovi_dati.index = nuovi_dati.index.normalize()
