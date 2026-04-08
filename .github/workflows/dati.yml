@@ -2,7 +2,7 @@ name: Scarica dati finanziari
 
 on:
   schedule:
-    - cron: '0 10 * * *'  # Ogni giorno alle 8:00 UTC
+    - cron: '0 16 * * *'  # Ogni giorno alle 18:00 UTC
   workflow_dispatch:       # Permette anche avvio manuale
 
 permissions:
