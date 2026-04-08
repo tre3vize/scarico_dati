@@ -8,25 +8,36 @@ titoli = ["AAPL", "MSFT", "GOOGL", "NVDA", "ENI.MI"]
 
 for simbolo in titoli:
     print(f"Scarico {simbolo}...")
-    ticker = yf.Ticker(simbolo)
-    nuovi_dati = ticker.history(period="1mo")
+    
+    try:
+        ticker = yf.Ticker(simbolo)
+        nuovi_dati = ticker.history(period="1mo")
 
-    # Rimuove le informazioni sul fuso orario per semplicità
-    nuovi_dati.index = nuovi_dati.index.tz_localize(None)
-    # Mantiene solo la data senza orario
-    nuovi_dati.index = nuovi_dati.index.normalize()
+        # Controlla che i dati non siano vuoti
+        if nuovi_dati.empty:
+            print(f"  Nessun dato ricevuto per {simbolo}, salto.")
+            continue
 
-    percorso = f"dati/{simbolo}.csv"
+        # Rimuove fuso orario solo se presente
+        if hasattr(nuovi_dati.index, 'tz') and nuovi_dati.index.tz is not None:
+            nuovi_dati.index = nuovi_dati.index.tz_localize(None)
+        nuovi_dati.index = nuovi_dati.index.normalize()
 
-    if os.path.exists(percorso):
-        dati_esistenti = pd.read_csv(percorso, index_col=0, parse_dates=True)
-        dati_uniti = pd.concat([dati_esistenti, nuovi_dati])
-        dati_uniti = dati_uniti[~dati_uniti.index.duplicated(keep='last')]
-        dati_uniti = dati_uniti.sort_index()
-        dati_uniti.to_csv(percorso)
-    else:
-        nuovi_dati.to_csv(percorso)
+        percorso = f"dati/{simbolo}.csv"
 
-    print(f"  Salvato in {percorso}")
+        if os.path.exists(percorso):
+            dati_esistenti = pd.read_csv(percorso, index_col=0, parse_dates=True)
+            dati_uniti = pd.concat([dati_esistenti, nuovi_dati])
+            dati_uniti = dati_uniti[~dati_uniti.index.duplicated(keep='last')]
+            dati_uniti = dati_uniti.sort_index()
+            dati_uniti.to_csv(percorso)
+        else:
+            nuovi_dati.to_csv(percorso)
+
+        print(f"  Salvato in {percorso}")
+
+    except Exception as e:
+        print(f"  Errore per {simbolo}: {e}, salto.")
+        continue
 
 print("Fatto!")
