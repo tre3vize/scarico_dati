@@ -12,7 +12,9 @@ for simbolo in titoli:
     try:
         ticker = yf.Ticker(simbolo)
         nuovi_dati = ticker.history(period="1mo")
-
+        print(f"  Righe ricevute: {len(nuovi_dati)}")
+        print(nuovi_dati.head())
+        
         # Controlla che i dati non siano vuoti
         if nuovi_dati.empty:
             print(f"  Nessun dato ricevuto per {simbolo}, salto.")
