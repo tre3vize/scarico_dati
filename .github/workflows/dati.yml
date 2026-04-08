@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write        # ← aggiungi questo blocco
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true   # ← aggiungi questo blocco
+
 jobs:
   scarica:
     runs-on: ubuntu-latest
